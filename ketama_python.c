@@ -11,18 +11,17 @@
 
 typedef struct {
     PyObject_HEAD
-    ketama_continuum continuum;
     PyObject* filename;
     char* cfilename;
+    ketama_continuum continuum;
 } Ketama;
 
 
 static void
 Ketama_dealloc(Ketama *self) {
     if (self->continuum != NULL) {
-        ketama_continuum cont = self->continuum;
+        ketama_smoke(self->continuum);
         self->continuum = NULL;
-        ketama_smoke(cont);
     }
 
     if (self->filename != NULL) {
@@ -34,19 +33,6 @@ Ketama_dealloc(Ketama *self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-
-static inline int pyStringToCharArray(PyObject* obj, char* target) {
-    if (PyBytes_Check(obj)) {
-        target = PyBytes_AsString(obj);
-    } else if (PyUnicode_Check(obj)) {
-        target = PyUnicode_AsUTF8(obj);
-    } else {
-        PyErr_SetString(PyExc_ValueError, "Value must be non empty string");
-        return 0;
-    }
-
-    return 1;
-}
 
 
 /*
@@ -67,22 +53,49 @@ static int
 Ketama_init(Ketama *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"filename", NULL};
+    PyObject *filename;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O", kwlist, &self->filename)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O", kwlist, &filename)) {
+        return -1;
+    }
+
+    if (filename == NULL) {
+        PyErr_SetString(PyExc_ValueError, "First argument must be passed");
         return -1;
     }
 
     char* cfilename;
 
-    if (pyStringToCharArray(&self->filename, &cfilename)) {
+    if (PyBytes_Check(filename)) {
+        if(PyBytes_GET_SIZE(filename) <= 0) {
+            PyErr_SetString(PyExc_ValueError, "Value must be non empty byte string");
+            return -1;
+        }
+        cfilename = PyBytes_AsString(filename);
+    } else if (PyUnicode_Check(filename)) {
+        if(PyUnicode_GET_SIZE(filename) <= 0) {
+            PyErr_SetString(PyExc_ValueError, "Value must be non empty string");
+            return -1;
+        }
+        cfilename = PyUnicode_AsUTF8(filename);
+    } else {
+        PyErr_SetString(PyExc_ValueError, "Value must be str or bytes");
         return -1;
     }
 
-    if (!ketama_roll(&self->continuum, self->cfilename)) {
-        PyErr_Format(PyExc_RuntimeError, "%s", ketama_error());
+    if (!ketama_roll(&self->continuum, cfilename)) {
+        char* err = ketama_error();
+        if (err != NULL) {
+            PyErr_Format(PyExc_RuntimeError, "%s", err);
+        } else {
+            PyErr_SetString(PyExc_RuntimeError, "Unknown Ketama error");
+        }
+
         return -1;
     }
 
+    self->filename = filename;
+    self->cfilename = cfilename;
     Py_INCREF(self->filename);
 
     return 0;
@@ -104,7 +117,7 @@ static PyObject* Ketama_repr(Ketama *self) {
 
 PyDoc_STRVAR(Ketama_get_server_docstring,
     "Maps a key onto a server in the continuum. \n\n"
-    "    Ketama('example.conf').get_server(server_name) -> Tuple[int, str]"
+    "    Ketama('example.conf').get_server(key) -> Tuple[int, str]"
 );
 
 static PyObject*
@@ -114,12 +127,20 @@ Ketama_get_server(Ketama* self, PyObject *args, PyObject *kwds) {
     if (!PyArg_ParseTuple(args, "O", &key)) return NULL;
 
     char* ckey;
+    size_t length;
 
-    if (pyStringToCharArray(key, &ckey)) {
-        return -1;
+    if (PyBytes_Check(key)) {
+        ckey = PyBytes_AsString(key);
+        length = PyBytes_GET_SIZE(key);
+    } else if (PyUnicode_Check(key)) {
+        ckey = PyUnicode_AsUTF8(key);
+        length = PyUnicode_GET_LENGTH(key);
+    } else {
+        PyErr_SetString(PyExc_ValueError, "Value must be non empty string");
+        return NULL;
     }
 
-    mcs *result = ketama_get_server(key, self->continuum);
+    mcs *result = ketama_get_server(ckey, self->continuum, length);
     return Py_BuildValue("Is", result->point, result->ip);
 }
 
