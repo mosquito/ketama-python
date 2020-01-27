@@ -219,7 +219,7 @@ KetamaType = {
 static PyModuleDef ketama_module = {
     PyModuleDef_HEAD_INIT,
     .m_name = "ketama",
-    .m_doc = "Ketama bindings.",
+    .m_doc = "Ketama library python bindings.",
     .m_size = -1,
 };
 
