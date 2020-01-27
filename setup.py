@@ -10,7 +10,10 @@ setup(
     url="https://github.com/mosquito/ketama-python",
     license="BSD License",
     ext_modules=[
-        Extension("ketama", ["ketama_python.c", "src/ketama.c", "src/md5.c"])
+        Extension(
+            "ketama", ["ketama_python.c", "src/ketama.c", "src/md5.c"],
+            extra_compile_args=["-std=gnu99"]
+        )
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
