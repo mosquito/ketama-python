@@ -44,7 +44,7 @@ def test_consistent_hash(ketama_config):
     key_hash, server = k.get_server(b"1")
     assert server == "127.0.0.1:3"
 
-    key_hash, server = k.get_server(b"1488")
+    key_hash, server = k.get_server(b"3")
     assert server != "127.0.0.1:1"
 
     key_hash, server = k.get_server(b"\0\0\0\0\0\0\0\0\0")

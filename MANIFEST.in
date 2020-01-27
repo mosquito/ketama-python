@@ -1,2 +1,3 @@
 include *.pyi
 include src/*.h
+include README.rst

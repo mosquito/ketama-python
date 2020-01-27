@@ -71,13 +71,13 @@ Ketama_init(Ketama *self, PyObject *args, PyObject *kwds)
             PyErr_SetString(PyExc_ValueError, "Value must be non empty byte string");
             return -1;
         }
-        cfilename = PyBytes_AsString(filename);
+        cfilename = (char*) PyBytes_AsString(filename);
     } else if (PyUnicode_Check(filename)) {
         if(PyUnicode_GET_SIZE(filename) <= 0) {
             PyErr_SetString(PyExc_ValueError, "Value must be non empty string");
             return -1;
         }
-        cfilename = PyUnicode_AsUTF8(filename);
+        cfilename = (char*) PyUnicode_AsUTF8(filename);
     } else {
         PyErr_SetString(PyExc_ValueError, "Value must be str or bytes");
         return -1;
@@ -130,10 +130,10 @@ Ketama_get_server(Ketama* self, PyObject *args, PyObject *kwds) {
     size_t length;
 
     if (PyBytes_Check(key)) {
-        ckey = PyBytes_AsString(key);
+        ckey = (char*) PyBytes_AsString(key);
         length = PyBytes_GET_SIZE(key);
     } else if (PyUnicode_Check(key)) {
-        ckey = PyUnicode_AsUTF8(key);
+        ckey = (char*) PyUnicode_AsUTF8(key);
         length = PyUnicode_GET_LENGTH(key);
     } else {
         PyErr_SetString(PyExc_ValueError, "Value must be non empty string");
