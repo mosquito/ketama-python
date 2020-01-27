@@ -64,8 +64,6 @@ Ketama_init(Ketama *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    printf("%s\n", cfilename);
-
     if (!ketama_roll(&self->continuum, self->cfilename)) {
         PyErr_Format(PyExc_RuntimeError, "%s", ketama_error());
         return -1;
