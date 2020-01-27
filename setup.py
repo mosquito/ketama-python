@@ -13,8 +13,6 @@ setup(
                 "ketama_python.c",
                 "src/ketama.c",
                 "src/md5.c",
-                "src/ketama.h",
-                "src/md5.h"
             ],
         ),
     ],
