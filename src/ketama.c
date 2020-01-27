@@ -198,12 +198,12 @@ ketama_sem_init( key_t key )
 
 /* ketama.h does not expose this function */
 void
-ketama_md5_digest( char* inString, unsigned char md5pword[16] )
+ketama_md5_digest( char* inString, size_t length, unsigned char md5pword[16] )
 {
     md5_state_t md5state;
 
     md5_init( &md5state );
-    md5_append( &md5state, (unsigned char *)inString, strlen( inString ) );
+    md5_append( &md5state, (unsigned char *)inString, length );
     md5_finish( &md5state, md5pword );
 }
 
@@ -339,11 +339,11 @@ read_server_definitions( char* filename, unsigned int* count, unsigned long* mem
 
 
 unsigned int
-ketama_hashi( char* inString )
+ketama_hashi( char* inString, size_t length )
 {
     unsigned char digest[16];
 
-    ketama_md5_digest( inString, digest );
+    ketama_md5_digest( inString, length, digest );
     return (unsigned int)(( digest[3] << 24 )
                         | ( digest[2] << 16 )
                         | ( digest[1] <<  8 )
@@ -352,9 +352,9 @@ ketama_hashi( char* inString )
 
 
 mcs*
-ketama_get_server( char* key, ketama_continuum cont )
+ketama_get_server( char* key, ketama_continuum cont, size_t length )
 {
-    unsigned int h = ketama_hashi( key );
+    unsigned int h = ketama_hashi( key, length );
     int highp = cont->numpoints;
     mcs (*mcsarr)[cont->numpoints] = cont->array;
     int lowp = 0, midp;
@@ -447,7 +447,7 @@ ketama_create_continuum( key_t key, char* filename )
             unsigned char digest[16];
 
             sprintf( ss, "%s-%d", slist[i].addr, k );
-            ketama_md5_digest( ss, digest );
+            ketama_md5_digest( ss, strlen(ss), digest );
 
             /* Use successive 4-bytes from hash as numbers
              * for the points on the circle: */

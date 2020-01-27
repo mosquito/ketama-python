@@ -84,7 +84,7 @@ void ketama_smoke( ketama_continuum contptr );
   * \param key The key that you want to map to a specific server.
   * \param cont Pointer to the continuum in which we will search.
   * \return The mcs struct that the given key maps to. */
-mcs* ketama_get_server( char*, ketama_continuum );
+mcs* ketama_get_server( char*, ketama_continuum, size_t length );
 
 /** \brief Print the server list of a continuum to stdout.
   * \param cont The continuum to print. */
@@ -99,12 +99,12 @@ int ketama_compare( mcs*, mcs* );
 /** \brief Hashing function, converting a string to an unsigned int by using MD5.
   * \param inString The string that you want to hash.
   * \return The resulting hash. */
-unsigned int ketama_hashi( char* inString );
+unsigned int ketama_hashi( char* inString, size_t length );
 
 /** \brief Hashinf function to 16 bytes char array using MD%.
  * \param inString The string that you want to hash.
  * \param md5pword The resulting hash. */
-void ketama_md5_digest( char* inString, unsigned char md5pword[16] );
+void ketama_md5_digest( char* inString, size_t length, unsigned char md5pword[16] );
 
 /** \brief Error method for error checking.
   * \return The latest error that occured. */
