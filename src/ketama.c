@@ -51,7 +51,9 @@
 #define free PyMem_Free
 /* --------------------------- */
 
-char k_error[255] = "";
+#define K_ERROR_SIZE 1024
+
+char k_error[K_ERROR_SIZE] = "";
 
 int num_sem_ids = 0;
 int num_shm_ids = 0;
@@ -65,6 +67,7 @@ int **shm_data = NULL;
 
 static void
 set_error(const char *format, ...) {
+    memset(k_error, 0, K_ERROR_SIZE);
     va_list ap;
     va_start(ap, format);
     vsnprintf(k_error, sizeof(k_error), format, ap);
