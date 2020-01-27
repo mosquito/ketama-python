@@ -34,6 +34,7 @@ Ketama_dealloc(Ketama *self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
+
 /*
     Ketama.__new__ classmethod definition
 */
@@ -44,6 +45,10 @@ Ketama_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     return (PyObject *) self;
 }
 
+
+/*
+    Ketama.__init__() method
+*/
 static int
 Ketama_init(Ketama *self, PyObject *args, PyObject *kwds)
 {
@@ -74,6 +79,7 @@ Ketama_init(Ketama *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
+
 static PyObject* Ketama_repr(Ketama *self) {
     if (self->continuum == NULL) {
         PyErr_SetNone(PyExc_RuntimeError);
@@ -85,6 +91,7 @@ static PyObject* Ketama_repr(Ketama *self) {
         Py_TYPE(self)->tp_name, self, self->cfilename
     );
 }
+
 
 PyDoc_STRVAR(Ketama_get_server_docstring,
     "Maps a key onto a server in the continuum. \n\n"
@@ -102,6 +109,10 @@ Ketama_get_server(Ketama* self, PyObject *args, PyObject *kwds) {
     return Py_BuildValue("Is", r->point, r->ip);
 }
 
+
+/*
+    Ketama.get_points() method
+*/
 PyDoc_STRVAR(Ketama_get_points_docstring,
     "return all continuum points.\n\n"
     "    Ketama.get_points() -> List[Tuple[int, str]]"
@@ -122,6 +133,7 @@ Ketama_get_points(Ketama* self, PyObject *args, PyObject *kwds) {
     return ret;
 }
 
+
 /*
     Ketama properties
 */
@@ -136,6 +148,7 @@ static PyMemberDef Ketama_members[] = {
     {NULL}  /* Sentinel */
 };
 
+
 static PyMethodDef Ketama_methods[] = {
     {
         "get_server",
@@ -149,6 +162,7 @@ static PyMethodDef Ketama_methods[] = {
     },
     {NULL}  /* Sentinel */
 };
+
 
 static PyTypeObject
 KetamaType = {
