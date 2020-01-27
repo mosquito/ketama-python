@@ -35,6 +35,20 @@ Ketama_dealloc(Ketama *self) {
 }
 
 
+static inline int pyStringToCharArray(PyObject* obj, char* target) {
+    if (PyBytes_Check(obj)) {
+        target = PyBytes_AsString(obj);
+    } else if (PyUnicode_Check(obj)) {
+        target = PyUnicode_AsUTF8(obj);
+    } else {
+        PyErr_SetString(PyExc_ValueError, "Value must be non empty string");
+        return 0;
+    }
+
+    return 1;
+}
+
+
 /*
     Ketama.__new__ classmethod definition
 */
@@ -60,12 +74,7 @@ Ketama_init(Ketama *self, PyObject *args, PyObject *kwds)
 
     char* cfilename;
 
-    if (PyBytes_Check(self->filename)) {
-        self->cfilename = PyBytes_AsString(self->filename);
-    } else if (PyUnicode_Check(self->filename)) {
-        self->cfilename = PyUnicode_AsUTF8(self->filename);
-    } else {
-        PyErr_SetString(PyExc_ValueError, "file name must be non empty string");
+    if (pyStringToCharArray(&self->filename, &cfilename)) {
         return -1;
     }
 
@@ -100,13 +109,18 @@ PyDoc_STRVAR(Ketama_get_server_docstring,
 
 static PyObject*
 Ketama_get_server(Ketama* self, PyObject *args, PyObject *kwds) {
-    char *key;
-    mcs *r;
+    PyObject *key;
 
-    if (!PyArg_ParseTuple(args, "s", &key)) return NULL;
+    if (!PyArg_ParseTuple(args, "O", &key)) return NULL;
 
-    r = ketama_get_server(key, self->continuum);
-    return Py_BuildValue("Is", r->point, r->ip);
+    char* ckey;
+
+    if (pyStringToCharArray(key, &ckey)) {
+        return -1;
+    }
+
+    mcs *result = ketama_get_server(key, self->continuum);
+    return Py_BuildValue("Is", result->point, result->ip);
 }
 
 
